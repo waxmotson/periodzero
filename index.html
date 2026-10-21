@@ -24,8 +24,9 @@
     }
     #periods {
       width: 100%;
+      height: 100vh;
       max-height: 100vh;
-      overflow-y: auto;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -45,7 +46,6 @@
     .label {
       font-size: 2vw;
       margin-bottom: 20px;
-      opacity: 0.8;
       background-color: rgba(15,15,15,0.6);
       text-align: center;
     }
@@ -180,6 +180,7 @@
         label.textContent = "TIMETABLE FINISHED";
         row.append(label);
         container.append(row);
+        fitRows();
         setBackground("NONE");
         return;
       }
@@ -200,7 +201,52 @@
         row.append(label, subject);
         container.append(row);
       }
+      fitRows();
     }
+
+    // Keep every row visible: reduce the type size only when the full stack
+    // would exceed the viewport. Recalculate on resize and whenever the rows change.
+    function fitRows() {
+      const container = document.getElementById("periods");
+      const labels = [...container.querySelectorAll(".label")];
+      const subjects = [...container.querySelectorAll(".subject")];
+      if (!labels.length) return;
+
+      const mobile = window.innerWidth <= 600;
+      const baseLabel = window.innerWidth * (mobile ? 0.04 : 0.02);
+      const baseSubject = window.innerWidth * (mobile ? 0.08 : 0.06);
+      const baseLabelGap = mobile ? 10 : 20;
+      const baseRowGap = window.innerHeight * (mobile ? 0.02 : 0.025);
+      let scale = 1;
+
+      const applyScale = () => {
+        labels.forEach(el => {
+          el.style.fontSize = (baseLabel * scale) + "px";
+          el.style.marginBottom = (baseLabelGap * scale) + "px";
+        });
+        subjects.forEach(el => {
+          el.style.fontSize = (baseSubject * scale) + "px";
+        });
+        [...container.querySelectorAll(".period-row")].forEach(el => {
+          el.style.marginBottom = (baseRowGap * scale) + "px";
+        });
+      };
+
+      applyScale();
+      // Measure the real rendered stack, then shrink enough to fit with a small
+      // safety margin for font rendering and browser rounding.
+      for (let i = 0; i < 3 && container.scrollHeight > container.clientHeight; i++) {
+        scale *= Math.min(0.95, (container.clientHeight - 4) / container.scrollHeight);
+        applyScale();
+      }
+      // If an unusually long subject still wraps, continue shrinking until it fits.
+      while (container.scrollHeight > container.clientHeight && scale > 0.35) {
+        scale *= 0.92;
+        applyScale();
+      }
+    }
+
+    window.addEventListener("resize", fitRows);
     render();
     setInterval(render, 15000);
   </script>
