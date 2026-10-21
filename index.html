@@ -185,7 +185,11 @@
         return;
       }
       const schedule = scheduleFor(view.date);
-      const firstCode = schedule[view.ids[0]] || "FREE";
+      // Choose the first real subject being displayed, rather than treating a
+      // missing/free Period 0 as the background subject.
+      const firstCode = view.ids
+        .map(id => schedule[id] || "FREE")
+        .find(code => code !== "FREE") || "FREE";
       setBackground(firstCode);
 
       for (const id of view.ids) {
