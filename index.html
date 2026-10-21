@@ -4,122 +4,47 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#111111">
-  <title>Upcoming periods</title>
+  <title>Period Zero</title>
   <style>
-    :root {
-      color-scheme: dark;
-      --bg: #111;
-      --panel: rgba(25, 25, 25, .92);
-      --text: #f7f7f7;
-      --muted: #b9b9b9;
-    }
     * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
     body {
-      margin: 0;
-      min-height: 100svh;
-      padding: 28px 18px;
-      display: grid;
-      place-items: center;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    main {
-      width: min(760px, 100%);
-      text-align: center;
-    }
-    h1 {
-      margin: 0 0 8px;
-      font-size: clamp(1.7rem, 5vw, 2.8rem);
-      font-weight: 650;
-      letter-spacing: -.04em;
-    }
-    #date-line {
-      margin: 0 0 26px;
-      color: var(--muted);
-      font-size: clamp(.95rem, 2.4vw, 1.1rem);
-    }
-    #periods {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    .period {
-      display: grid;
-      grid-template-columns: minmax(82px, 112px) 1fr;
-      align-items: stretch;
-      overflow: hidden;
-      border-radius: 10px;
-      min-height: 82px;
-      text-align: left;
-      background: var(--panel);
-      box-shadow: 0 4px 18px #0003;
-    }
-    .period-name {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 12px 14px;
-      background: #292929;
-      font-size: 1rem;
-      font-weight: 700;
-    }
-    .period-time {
-      margin-top: 5px;
-      color: #dedede;
-      font-size: .76rem;
-      font-weight: 400;
-      white-space: nowrap;
-    }
-    .subject {
-      display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 15px;
-      font-size: clamp(1.25rem, 4vw, 1.8rem);
-      font-weight: 700;
-      color: #111;
+      overflow: hidden;
+      background: #111 url("backgrounds/placeholder.png") no-repeat center center fixed;
+      background-size: 100% 100%;
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
     }
-    .math { background: #ff0808; color: white; }
-    .business { background: #a5c8e9; }
-    .economics { background: #b5e5a3; }
-    .cd { background: #176783; color: white; }
-    .geography { background: #762174; color: white; }
-    .english { background: #fff500; }
-    .free { background: #f0c9e9; }
-    .none { background: #444; color: #eee; }
-    .assembly, .meeting { background: #888; color: white; }
-    .tutorial { background: #bd4d0d; color: white; }
-    .chapel { background: #888; color: white; }
-    .break .subject { background: #292929; color: #eee; }
-    .empty-state {
-      padding: 26px 18px;
-      background: var(--panel);
-      border-radius: 10px;
-      color: var(--muted);
-      font-size: 1.05rem;
+    #period, #subject {
+      max-width: 96vw;
+      padding: .08em .22em;
+      background: rgba(15, 15, 15, .6);
+      overflow-wrap: anywhere;
     }
-    @media (max-width: 420px) {
-      body { padding: 18px 12px; }
-      .period { grid-template-columns: 90px 1fr; min-height: 72px; }
-      .period-name { padding: 10px; }
-      .subject { padding: 10px 7px; }
+    #period {
+      margin-bottom: 20px;
+      font-size: clamp(22px, 3vw, 42px);
+      font-weight: 400;
+    }
+    #subject {
+      font-size: clamp(42px, 8vw, 112px);
+      font-weight: 400;
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1 id="heading">Up next</h1>
-    <p id="date-line"></p>
-    <section id="periods" aria-live="polite"></section>
-  </main>
-
+  <div id="period">Period 1</div>
+  <div id="subject">Loading…</div>
   <script>
-    // Week A Thursday is 22 October 2026. The timetable runs through 4 December.
+    // Week A Thursday is 22 October 2026; alternate A/B weeks through 4 December.
     const FIRST_DATE = new Date(2026, 9, 22);
     const LAST_DATE = new Date(2026, 11, 4);
-    const CYCLE_MONDAY = new Date(2026, 9, 19); // Monday of Week A
-
+    const CYCLE_MONDAY = new Date(2026, 9, 19);
     const timetable = {
       A: {
         Monday:    { p1: "bs", p2: "ma", p3: "FREE", tut: "assem", p4: "eco", p5: "engadv" },
@@ -136,144 +61,104 @@
         Friday:    { p1: "bs", p2: "cd", p3: "geo", tut: "chap", p4: "FREE", p5: "FREE" }
       }
     };
-
-    const subjects = {
-      ma: ["Maths", "math"],
-      bs: ["Business Studies", "business"],
-      eco: ["Economics", "economics"],
-      cd: ["CD", "cd"],
-      geo: ["Geography", "geography"],
-      engadv: ["English Advanced", "english"],
-      assem: ["Assembly", "assembly"],
-      tut: ["Tutorial", "tutorial"],
-      chap: ["Chapel", "chapel"],
-      hm: ["House Meeting", "meeting"],
-      ym: ["Year Meeting", "meeting"],
-      FREE: ["FREE", "free"],
-      NONE: ["No class", "none"]
+    const names = {
+      ma: "Maths", bs: "Business Studies", eco: "Economics", cd: "CD",
+      geo: "Geography", engadv: "English Advanced", assem: "Assembly",
+      tut: "Tutorial", chap: "Chapel", hm: "House Meeting", ym: "Year Meeting",
+      FREE: "FREE"
     };
-
     const periods = [
-      { id: "p0", name: "Period 0", start: 450, end: 510, time: "7:30–8:30" },
-      { id: "p1", name: "Period 1", start: 510, end: 570, time: "8:30–9:30" },
-      { id: "p2", name: "Period 2", start: 575, end: 635, time: "9:35–10:35" },
-      { id: "p3", name: "Period 3", start: 655, end: 715, time: "10:55–11:55" },
-      { id: "p4", name: "Period 4", start: 790, end: 850, time: "1:10–2:10" },
-      { id: "p5", name: "Period 5", start: 850, end: 915, time: "2:10–3:15" }
+      { id: "p0", label: "Period 0" },
+      { id: "p1", label: "Period 1" },
+      { id: "p2", label: "Period 2" },
+      { id: "p3", label: "Period 3" },
+      { id: "p4", label: "Period 4" },
+      { id: "p5", label: "Period 5" }
     ];
-    const tutorial = { id: "tut", name: "Tutorial", start: 720, end: 750, time: "12:00–12:30" };
-    const lunch = { id: "lunch", name: "Lunch", start: 750, end: 790, time: "12:30–1:10" };
-    const recess = { id: "recess", name: "Recess", start: 635, end: 655, time: "10:35–10:55" };
-
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const fmtDate = new Intl.DateTimeFormat("en-AU", { weekday: "long", day: "numeric", month: "long" });
+    const midnight = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const addDays = (d, n) => { const out = new Date(d); out.setDate(out.getDate() + n); return out; };
+    const minutes = d => d.getHours() * 60 + d.getMinutes();
 
-    function atMidnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-    function addDays(d, n) { const out = new Date(d); out.setDate(out.getDate() + n); return out; }
-    function mins(d) { return d.getHours() * 60 + d.getMinutes(); }
     function weekFor(date) {
-      const monday = atMidnight(date);
-      const day = monday.getDay();
-      monday.setDate(monday.getDate() - ((day + 6) % 7));
-      const weeks = Math.floor((monday - CYCLE_MONDAY) / (7 * 86400000));
+      const monday = midnight(date);
+      monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+      const weeks = Math.floor((monday - CYCLE_MONDAY) / 604800000);
       return ((weeks % 2) + 2) % 2 === 0 ? "A" : "B";
     }
     function isSchoolDay(date) {
       return date.getDay() >= 1 && date.getDay() <= 5 &&
-        atMidnight(date) >= atMidnight(FIRST_DATE) &&
-        atMidnight(date) <= atMidnight(LAST_DATE);
+        midnight(date) >= midnight(FIRST_DATE) && midnight(date) <= midnight(LAST_DATE);
     }
     function nextSchoolDay(from) {
-      let d = atMidnight(from);
-      for (let i = 0; i < 10; i++, d = addDays(d, 1)) {
-        if (isSchoolDay(d)) return d;
-      }
+      let d = midnight(from);
+      for (let i = 0; i < 10; i++, d = addDays(d, 1)) if (isSchoolDay(d)) return d;
       return null;
     }
     function scheduleFor(date) {
-      const dayName = dayNames[date.getDay()];
-      return timetable[weekFor(date)][dayName] || null;
+      return timetable[weekFor(date)][dayNames[date.getDay()]] || {};
     }
-    function nextDayFullSchedule(now) {
-      const tomorrow = addDays(atMidnight(now), 1);
-      const target = nextSchoolDay(tomorrow);
-      return target ? { date: target, ids: ["p0", "p1", "p2", "p3", "tut", "p4", "p5"], full: true } : null;
+    function nextDay(now) {
+      const date = nextSchoolDay(addDays(midnight(now), 1));
+      return date ? { date, id: "p0" } : null;
     }
-
     function upcoming(now) {
-      if (atMidnight(now) > atMidnight(LAST_DATE)) return { done: true };
-      const day = atMidnight(now);
-      const minute = mins(now);
-
-      if (!isSchoolDay(day) || minute >= 915) return nextDayFullSchedule(now);
-
-      const schedule = scheduleFor(day);
-      if (!schedule) return nextDayFullSchedule(now);
-
-      // Show the next classes in the school-day rhythm requested.
-      if (minute < 450) return { date: day, ids: ["p0", "p1", "p2"] };
-      if (minute < 510) return { date: day, ids: ["p1", "p2"] };
-      if (minute < 575) return { date: day, ids: ["p2"] };
-      if (minute < 655) return { date: day, ids: ["p3"] }; // Period 2 and recess
-      if (minute < 750) return { date: day, ids: ["p4"] }; // Period 3 and tutorial
-      if (minute < 790) return { date: day, ids: ["p4", "p5"] }; // Lunch
-      if (minute < 850) return { date: day, ids: ["p5"] };
-      return nextDayFullSchedule(now);
+      if (midnight(now) > midnight(LAST_DATE)) return null;
+      const date = midnight(now), m = minutes(now);
+      if (!isSchoolDay(date) || m >= 915) return nextDay(now);
+      if (m < 450) return { date, id: "p0" };
+      if (m < 510) return { date, id: "p1" };
+      if (m < 575) return { date, id: "p2" };
+      if (m < 655) return { date, id: "p3" };
+      if (m < 750) return { date, id: "p4" };
+      if (m < 790) return { date, id: "p4" };
+      if (m < 850) return { date, id: "p5" };
+      return nextDay(now);
     }
 
-    function labelFor(id, schedule) {
-      if (id === "lunch") return ["Lunch", "break"];
-      if (id === "recess") return ["Recess", "break"];
-      const data = id === "tut" ? tutorial : periods.find(p => p.id === id);
-      const subjectKey = schedule && Object.prototype.hasOwnProperty.call(schedule, id) ? schedule[id] : "NONE";
-      const [label, cls] = subjects[subjectKey] || [subjectKey, "free"];
-      return [label, cls, data];
+    // These are the image files currently present in backgrounds/. Unmatched
+    // subjects automatically use the repository's placeholder.png.
+    function backgroundFor(code) {
+      if (code === "bs") return "backgrounds/businessstudies.png";
+      if (code === "eco") return "backgrounds/economics.png";
+      return "backgrounds/placeholder.png";
     }
-
+    let activeBackground = "";
+    function setBackground(code) {
+      const url = backgroundFor(code);
+      if (url === activeBackground) return;
+      activeBackground = url;
+      const img = new Image();
+      img.onload = () => {
+        if (activeBackground === url) {
+          document.body.style.backgroundImage = 'url("' + url + '")';
+          document.body.style.backgroundSize = "100% 100%";
+        }
+      };
+      img.onerror = () => {
+        if (activeBackground === url) {
+          document.body.style.backgroundImage = 'url("backgrounds/placeholder.png")';
+          document.body.style.backgroundSize = "100% 100%";
+        }
+      };
+      img.src = url;
+    }
     function render() {
-      const now = new Date();
-      const view = upcoming(now);
-      const heading = document.getElementById("heading");
-      const dateLine = document.getElementById("date-line");
-      const container = document.getElementById("periods");
-      container.replaceChildren();
-
-      if (view.done || (!view.ids && !view.date)) {
-        heading.textContent = "That's the end";
-        dateLine.textContent = "The timetable cycle finishes on 4 December 2026.";
-        container.innerHTML = '<div class="empty-state">No more scheduled school days in this timetable.</div>';
+      const view = upcoming(new Date());
+      const periodEl = document.getElementById("period");
+      const subjectEl = document.getElementById("subject");
+      if (!view) {
+        periodEl.textContent = "Timetable finished";
+        subjectEl.textContent = "";
+        setBackground("NONE");
         return;
       }
-
-      const fullDay = Boolean(view.full);
-      heading.textContent = fullDay ? "Next school day" : "Up next";
-      dateLine.textContent = `${fmtDate.format(view.date)} · Week ${weekFor(view.date)}`;
-      const schedule = scheduleFor(view.date);
-
-      for (const id of view.ids) {
-        const result = labelFor(id, schedule);
-        const [subject, cls, info] = result;
-        const card = document.createElement("article");
-        card.className = "period";
-        const name = document.createElement("div");
-        name.className = "period-name";
-        name.append(document.createTextNode(info?.name || subject));
-        if (info?.time) {
-          const time = document.createElement("span");
-          time.className = "period-time";
-          time.textContent = info.time;
-          name.append(time);
-        }
-        const subjectEl = document.createElement("div");
-        subjectEl.className = `subject ${cls}`;
-        subjectEl.textContent = subject;
-        card.append(name, subjectEl);
-        container.append(card);
-      }
+      const code = scheduleFor(view.date)[view.id] || "FREE";
+      periodEl.textContent = periods.find(p => p.id === view.id).label;
+      subjectEl.textContent = names[code] || code;
+      setBackground(code);
     }
-
     render();
-    // Keep the page current without displaying a countdown.
     setInterval(render, 15000);
   </script>
 </body>
