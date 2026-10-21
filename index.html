@@ -190,6 +190,8 @@
 
       for (const id of view.ids) {
         const code = schedule[id] || "FREE";
+        // Hide optional Period 0 when it is a FREE period.
+        if (id === "p0" && code === "FREE") continue;
         const row = document.createElement("section");
         row.className = "period-row";
         const label = document.createElement("div");
