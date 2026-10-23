@@ -129,8 +129,13 @@
       return date ? { date, ids: ["p0", "p1", "p2", "p3", "tut", "p4", "p5"] } : null;
     }
     function upcoming(now) {
-      if (midnight(now) > midnight(LAST_DATE)) return null;
       const date = midnight(now), m = minutes(now);
+      // Show a weekend screen on Saturday, and after school on Friday.
+      // This takes priority over advancing directly to Monday's timetable.
+      if (date.getDay() === 6 || (date.getDay() === 5 && m >= 915)) {
+        return { weekend: true };
+      }
+      if (midnight(now) > midnight(LAST_DATE)) return null;
       if (!isSchoolDay(date) || m >= 915) return nextSchoolDayView(now);
       if (m < 450) return { date, ids: ["p0", "p1", "p2"] };
       if (m < 510) return { date, ids: ["p1", "p2"] };
@@ -172,6 +177,21 @@
       const view = upcoming(new Date());
       const container = document.getElementById("periods");
       container.replaceChildren();
+      if (view && view.weekend) {
+        const row = document.createElement("section");
+        row.className = "period-row";
+        const label = document.createElement("div");
+        label.className = "label";
+        label.textContent = "ITS A";
+        const subject = document.createElement("div");
+        subject.className = "subject";
+        subject.textContent = "WEEKEND";
+        row.append(label, subject);
+        container.append(row);
+        fitRows();
+        setBackground("NONE");
+        return;
+      }
       if (!view) {
         const row = document.createElement("div");
         row.className = "period-row";
