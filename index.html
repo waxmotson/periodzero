@@ -141,6 +141,8 @@
       if (m < 510) return { date, ids: ["p1", "p2"] };
       if (m < 575) return { date, ids: ["p2"] };
       if (m < 655) return { date, ids: ["p3"] };
+      // During Period 3, show both the upcoming Tutorial item and Period 4.
+      if (m < 720) return { date, ids: ["tut", "p4"] };
       if (m < 750) return { date, ids: ["p4"] };
       if (m < 790) return { date, ids: ["p4", "p5"] };
       if (m < 850) return { date, ids: ["p5"] };
